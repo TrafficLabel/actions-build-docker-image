@@ -1,6 +1,10 @@
 name: 'Build and Push Docker Image'
 description: 'Logins to AWS ECR, builds docker image, and pushesh it. Requires all docker files in .docker directory.'
 inputs:
+  docker-directory:
+    description: 'Directory with docker context'
+    default: '.docker'
+    required: false
   aws-region:
     description: 'AWS Region'
     default: 'eu-west-2'
@@ -19,17 +23,17 @@ runs:
   steps:
 
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v1.7.0
       with:
         aws-region: ${{ inputs.aws-region }}
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
 
     - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v1.5.3
 
     - name: Build, and push image to Amazon ECR
       shell: bash
       run: |
-        docker build -t "${{ inputs.docker-image-tag }}" .docker
+        docker build -t "${{ inputs.docker-image-tag }}" "${{ inputs.docker-directory }}"
         docker push "${{ inputs.docker-image-tag }}"
